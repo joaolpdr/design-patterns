@@ -1,74 +1,82 @@
 package br.pucpr.usuario;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class UsuarioPrinter {
+    private static final int TAMANHO_TABELA = 74;
+    private static final String FORMATO_TABELA = "| %-5s | %-20s | %-22s | %-14s |%n";
+
     public record Usuario(Long id, String nome, String email, String cpf) {
     }
 
-    public void print(ArrayList<Usuario> lista, boolean maskCpf, boolean alignRight, String theme) {
-        if (lista != null && !lista.isEmpty()) {
-            var borderChar = "=";
-            if (Objects.equals(theme, "DARK")) {
-                borderChar = "#";
-            } else if (Objects.equals(theme, "LIGHT")) {
-                borderChar = "-";
-            }
+    public void print(List<Usuario> lista, boolean mascarar_CPF, boolean alignRight, String theme) {
+        if (lista == null || lista.isEmpty()) {
+            System.out.println("ERRO: Lista de usuários vazia ou nula.");
+            return;
+        }
 
-            // Borda superior e cabeçalho
-            var sb = new StringBuilder();
-            sb.repeat(borderChar, 74).append("\n");
-            sb.append(String.format("| %-5s | %-20s | %-22s | %-14s |\n", "ID", "NOME", "EMAIL", "CPF"));
-            sb.repeat(borderChar, 74).append("\n");
-            for (var u : lista) {
-                if (u != null) {
-                    //Formatação do nome
-                    var n = u.nome();
-                    if (n == null || n.isEmpty()) {
-                        n = "NÃO INFORMADO";
-                    } else if (n.length() > 20) {
-                        n = n.substring(0, 17) + "...";
-                    }
-
-                    // Formatação do email
-                    var e = u.email();
-                    if (e == null || !e.contains("@")) {
-                        e = "INVALIDO";
-                    }
-
-                    // Formatação do CPF
-                    var c = u.cpf();
-                    if (c != null && c.length() == 11) {
-                        if (maskCpf) {
-                            c = "***." + c.substring(3, 6) + "." + c.substring(6, 9) + "-**";
-                        } else {
-                            c = c.substring(0, 3) + "." + c.substring(3, 6) + "." + c.substring(6, 9) + "-" + c.substring(9, 11);
-                        }
-                    } else {
-                        c = "CPF INVALIDO";
-                    }
-
-                    var idStr = u.id() != null ? u.id().toString() : "0";
-                    sb.append(String.format("| %-5s | %-20s | %-22s | %-14s |\n", idStr, n, e, c));
-                }
-
-                //Borda inferior
-                sb.repeat(borderChar, 74).append("\n");
-
-                //Espaçamento
-                if (alignRight) {
-                    var lines = sb.toString().split("\n");
-                    for (var line : lines) {
-                        System.out.println("                    " + line);
-                    }
-                } else {
-                    System.out.print(sb);
-                }
+        var tabela = formatar_tabela(lista, mascarar_CPF, borderCharFor(theme));
+        if (alignRight) {
+            for (var line : tabela.split("\n")) {
+                System.out.println("                    " + line);
             }
         } else {
-            System.out.println("ERRO: Lista de usuários vazia ou nula.");
+            System.out.print(tabela);
         }
+    }
+
+    private String formatar_tabela(List<Usuario> usuarios, boolean mascarar_CPF, String borderChar) {
+        var border = borderChar.repeat(TAMANHO_TABELA);
+        var table = new StringBuilder()
+                .append(border).append("\n")
+                .append(String.format(FORMATO_TABELA, "ID", "NOME", "EMAIL", "CPF"))
+                .append(border).append("\n");
+
+        for (var usuario : usuarios) {
+            if (usuario != null) {
+                table.append(formatUsuario(usuario, mascarar_CPF));
+            }
+        }
+
+        return table.append(border).append("\n").toString();
+    }
+
+    private String formatUsuario(Usuario usuario, boolean maskCpf) {
+        var id = usuario.id() == null ? "0" : usuario.id().toString();
+        return String.format(FORMATO_TABELA, id, formatNome(usuario.nome()), formatEmail(usuario.email()),
+                formatCpf(usuario.cpf(), maskCpf));
+    }
+
+    private String formatNome(String nome) {
+        if (nome == null || nome.isEmpty()) {
+            return "NÃO INFORMADO";
+        }
+        return nome.length() > 20 ? nome.substring(0, 17) + "..." : nome;
+    }
+
+    private String formatEmail(String email) {
+        return email == null || !email.contains("@") ? "INVALIDO" : email;
+    }
+
+    private String formatCpf(String cpf, boolean maskCpf) {
+        if (cpf == null || cpf.length() != 11) {
+            return "CPF INVALIDO";
+        }
+        var suffix = cpf.substring(3, 6) + "." + cpf.substring(6, 9);
+        return maskCpf ? "***." + suffix + "-**"
+                : cpf.substring(0, 3) + "." + suffix + "-" + cpf.substring(9, 11);
+    }
+
+    private String borderCharFor(String theme) {
+        if (Objects.equals(theme, "DARK")) {
+            return "#";
+        }
+        if (Objects.equals(theme, "LIGHT")) {
+            return "-";
+        }
+        return "=";
     }
 
     public static void main(String[] args) {
