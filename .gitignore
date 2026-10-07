@@ -31,3 +31,8 @@ bin/
 ### Mac OS ###
 .DS_Store
 README.md
+
+### Gradle ###
+.gradle/
+build/
+gradlew.bat

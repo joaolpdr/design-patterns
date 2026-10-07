@@ -1,0 +1,5 @@
+#!/bin/sh
+./gradlew spotlessCheck spotbugsMain --quiet || {
+  echo "pre-commit: falha no Spotless/SpotBugs. Rode ./gradlew spotlessApply e corrija os bugs."
+  exit 1
+}
