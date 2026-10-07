@@ -1,9 +1,9 @@
 package br.pucpr.planet;
 
-import br.pucpr.table.model.TableData;
+import br.pucpr.table.model.DadosObservaveis;
 import java.util.ArrayList;
 
-public class PlanetsTableData implements TableData {
+public class PlanetsTableData extends DadosObservaveis {
   private final ArrayList<Planet> planets;
   private static final int COL_NAME = 0;
   private static final int COL_DIAMETER = 1;
@@ -67,5 +67,10 @@ public class PlanetsTableData implements TableData {
       case COL_TYPE -> "%-10s".formatted(formatType(planet.type()));
       default -> throw new IllegalStateException();
     };
+  }
+
+  public void adicionar(Planet planet) {
+    planets.add(planet);
+    notificarObservadores();
   }
 }

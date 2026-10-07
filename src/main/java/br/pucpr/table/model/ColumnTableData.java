@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class ColumnTableData<T> implements TableData {
+public class ColumnTableData<T> extends DadosObservaveis {
   private final List<ColumnData<? super T>> columns;
   private final List<T> data;
 
@@ -38,5 +38,16 @@ public class ColumnTableData<T> implements TableData {
   public String get(int row, int col) {
     var line = data.get(row);
     return columns.get(col).get(line);
+  }
+
+  public void adicionar(T item) {
+    data.add(item);
+    notificarObservadores();
+  }
+
+  public void remover(T item) {
+    if (data.remove(item)) {
+      notificarObservadores();
+    }
   }
 }

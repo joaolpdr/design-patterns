@@ -31,17 +31,29 @@ public class Main {
 
     System.out.println("IMPRIMINDO USUARIOS");
     System.out.println("-------------------");
-    final var usuariosPaginados =
-        new TabelaPaginada(
-            new ColumnTableData<User>(
-                usuarios, new IdColumn(), new NameColumn(), new EmailColumn(), new CpfColumn(true)),
-            4);
+    final var dadosUsuarios =
+        new ColumnTableData<User>(
+            usuarios, new IdColumn(), new NameColumn(), new EmailColumn(), new CpfColumn(true));
+    final var usuariosPaginados = new TabelaPaginada(dadosUsuarios, 4);
     final var tabelaUsuarios = new Table(usuariosPaginados, LIGHT, true);
-    for (int pagina = 0; pagina < usuariosPaginados.totalPaginas(); pagina++) {
-      usuariosPaginados.setPagina(pagina);
-      System.out.println("Página " + (pagina + 1) + " de " + usuariosPaginados.totalPaginas());
-      tabelaUsuarios.print();
-    }
+
+    // Observadores: a tabela se redesenha e o rodapé mostra a página atual
+    usuariosPaginados.adicionarObservador(tabelaUsuarios::print);
+    usuariosPaginados.adicionarObservador(
+        () ->
+            System.out.println(
+                "Página "
+                    + (usuariosPaginados.getPagina() + 1)
+                    + " de "
+                    + usuariosPaginados.totalPaginas()
+                    + "\n"));
+
+    tabelaUsuarios.print();
+    System.out.println(">> Mudando para a página 2");
+    usuariosPaginados.setPagina(1);
+    System.out.println(">> Adicionando um usuário");
+    dadosUsuarios.adicionar(
+        new User(107L, "Fernanda Lima", "fernanda@email.com", "99988877766"));
 
 
     final var planetas = new ArrayList<Planet>();

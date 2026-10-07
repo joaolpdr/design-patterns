@@ -8,4 +8,8 @@ public interface TableData {
   String header(int col);
 
   String get(int row, int col);
+
+  void adicionarObservador(ObservadorDados observador);
+
+  void removerObservador(ObservadorDados observador);
 }

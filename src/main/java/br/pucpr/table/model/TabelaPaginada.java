@@ -1,6 +1,6 @@
 package br.pucpr.table.model;
 
-public class TabelaPaginada implements TableData {
+public class TabelaPaginada extends DadosObservaveis {
   private final TableData dados;
   private final int tamanhoPagina;
   private int pagina;
@@ -15,6 +15,14 @@ public class TabelaPaginada implements TableData {
     this.dados = dados;
     this.tamanhoPagina = tamanhoPagina;
     this.pagina = 0;
+    dados.adicionarObservador(this::dadosOriginaisAlterados);
+  }
+
+  private void dadosOriginaisAlterados() {
+    if (pagina >= totalPaginas()) {
+      pagina = totalPaginas() - 1;
+    }
+    notificarObservadores();
   }
 
   public int getPagina() {
@@ -25,7 +33,10 @@ public class TabelaPaginada implements TableData {
     if (pagina < 0 || pagina >= totalPaginas()) {
       throw new IllegalArgumentException("Página inválida: " + pagina);
     }
-    this.pagina = pagina;
+    if (this.pagina != pagina) {
+      this.pagina = pagina;
+      notificarObservadores();
+    }
   }
 
   public int totalPaginas() {
