@@ -9,6 +9,7 @@ import br.pucpr.planet.Planet;
 import br.pucpr.planet.PlanetsTableData;
 import br.pucpr.table.Table;
 import br.pucpr.table.model.ColumnTableData;
+import br.pucpr.table.model.TabelaPaginada;
 import br.pucpr.user.CpfColumn;
 import br.pucpr.user.EmailColumn;
 import br.pucpr.user.IdColumn;
@@ -30,12 +31,17 @@ public class Main {
 
     System.out.println("IMPRIMINDO USUARIOS");
     System.out.println("-------------------");
-    new Table(
-        new ColumnTableData<User>(
-            usuarios, new IdColumn(), new NameColumn(), new EmailColumn(), new CpfColumn(true)),
-        LIGHT,
-        true)
-    .print();
+    final var usuariosPaginados =
+        new TabelaPaginada(
+            new ColumnTableData<User>(
+                usuarios, new IdColumn(), new NameColumn(), new EmailColumn(), new CpfColumn(true)),
+            4);
+    final var tabelaUsuarios = new Table(usuariosPaginados, LIGHT, true);
+    for (int pagina = 0; pagina < usuariosPaginados.totalPaginas(); pagina++) {
+      usuariosPaginados.setPagina(pagina);
+      System.out.println("Página " + (pagina + 1) + " de " + usuariosPaginados.totalPaginas());
+      tabelaUsuarios.print();
+    }
 
 
     final var planetas = new ArrayList<Planet>();
@@ -52,6 +58,12 @@ public class Main {
     System.out.println();
     System.out.println("IMPRIMINDO PLANETAS");
     System.out.println("-------------------");
-    new Table(new PlanetsTableData(planetas)).print();
+    final var planetasPaginados = new TabelaPaginada(new PlanetsTableData(planetas), 4);
+    final var tabelaPlanetas = new Table(planetasPaginados);
+    for (int pagina = 0; pagina < planetasPaginados.totalPaginas(); pagina++) {
+      planetasPaginados.setPagina(pagina);
+      System.out.println("Página " + (pagina + 1) + " de " + planetasPaginados.totalPaginas());
+      tabelaPlanetas.print();
+    }
   }
 }
